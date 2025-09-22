@@ -98,6 +98,16 @@ def writeOutput():
 def bfs_search(initial_state):
     """BFS search"""
     ### STUDENT CODE GOES HERE ###
+    frontier = Q.Queue()
+    frontier.put(initial_state)
+
+    explored = set()
+
+    while not frontier.empty():
+        state = frontier.get()
+        explored.add(state)
+
+        if test_goal(state):
     pass
 
 def dfs_search(initial_state):
