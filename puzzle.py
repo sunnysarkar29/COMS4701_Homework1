@@ -128,7 +128,7 @@ class PuzzleState(object):
 # Function that Writes to output.txt
 
 ### Students need to change the method to have the corresponding parameters
-def writeOutput():
+def writeOutput(state):
     ### Student Code Goes here
     pass
 
@@ -145,7 +145,14 @@ def bfs_search(initial_state):
         explored.add(state)
 
         if test_goal(state):
-            return writeOutput()
+            return writeOutput(state)
+        
+        for neighbor in state.expand():
+            if neighbor.config not in [node.frontier for node in frontier] and \
+               neighbor.config not in [node.frontier for node in explored]:
+                frontier.put(neighbor)
+    
+    return False
 
 def dfs_search(initial_state):
     """DFS search"""
