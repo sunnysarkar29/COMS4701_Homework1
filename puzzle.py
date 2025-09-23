@@ -47,7 +47,17 @@ class PuzzleState(object):
         Moves the blank tile one row up.
         :return a PuzzleState with the new configuration
         """
-        pass
+        if 0 in self.config[0:self.n]:
+            return None
+        
+        new_config = list(self.config)
+        
+        new_config[self.blank_index] = new_config[self.blank_index - self.n]
+        new_config[self.blank_index - self.n] = 0
+        self.blank_index = self.config.index(0)
+
+        return PuzzleState(new_config, self.n, self, "Up", self.cost + 1)
+
       
     def move_down(self):
         """
@@ -108,7 +118,7 @@ def bfs_search(initial_state):
         explored.add(state)
 
         if test_goal(state):
-    pass
+            return writeOutput()
 
 def dfs_search(initial_state):
     """DFS search"""
