@@ -135,22 +135,22 @@ def writeOutput(state):
 def bfs_search(initial_state):
     """BFS search"""
     ### STUDENT CODE GOES HERE ###
-    frontier = Q.Queue()
-    frontier.put(initial_state)
+    frontier = list()
+    frontier.append(initial_state)
 
     explored = set()
 
-    while not frontier.empty():
-        state = frontier.get()
+    while len(frontier) != 0:
+        state = frontier.pop(0)
         explored.add(state)
 
         if test_goal(state):
             return writeOutput(state)
         
         for neighbor in state.expand():
-            if neighbor.config not in [node.frontier for node in frontier] and \
-               neighbor.config not in [node.frontier for node in explored]:
-                frontier.put(neighbor)
+            if neighbor.config not in [node.config for node in frontier] and \
+               neighbor.config not in [node.config for node in explored]:
+                frontier.append(neighbor)
     
     return False
 
