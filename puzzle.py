@@ -201,7 +201,8 @@ def calculate_total_cost(state):
 def calculate_manhattan_dist(idx, value, n):
     """calculate the manhattan distance of a tile"""
     ### STUDENT CODE GOES HERE ###
-    pass
+    distanceConfig = abs(idx - value)
+    return int(distanceConfig / n) + (distanceConfig % n)
 
 def test_goal(puzzle_state):
     """test the state is the goal state or not"""
