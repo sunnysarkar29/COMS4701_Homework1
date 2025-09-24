@@ -128,8 +128,20 @@ class PuzzleState(object):
 # Function that Writes to output.txt
 
 ### Students need to change the method to have the corresponding parameters
-def writeOutput(state):
+def writeOutput(state, numNodesExpanded, searchDepth, maxSearchDepth, runningTime, maxRamUsage):
     ### Student Code Goes here
+    
+    path = []
+    getPathNode = state
+    while state.parent is not None:
+        path = [getPathNode.action] + path
+        getPathNode = getPathNode.parent
+
+    with open("output.txt", "w") as f:
+        f.write("path_to_goal: " + str(path) + "\n")
+        f.write("cost_of_path: " + str(state.cost) + "\n")
+        f.write("nodes_expanded: " + str(getPathNode.cost) + "\n")
+        f.write("search_depth: " + str(getPathNode.cost) + "\n")
     pass
 
 def bfs_search(initial_state):
@@ -145,7 +157,7 @@ def bfs_search(initial_state):
         explored.add(state)
 
         if test_goal(state):
-            return writeOutput(state)
+            return state, numNodesExpanded, searchDepth, maxSearchDepth, runningTime, maxRamUsage
         
         for neighbor in state.expand():
             if neighbor.config not in [node.config for node in frontier] and \
