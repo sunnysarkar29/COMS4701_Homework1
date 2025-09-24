@@ -43,22 +43,22 @@ class PuzzleState(object):
             print(self.config[3*i : 3*(i+1)])
 
     def move_up(self):
-        """ 
+        """
         Moves the blank tile one row up.
         :return a PuzzleState with the new configuration
         """
         if 0 in self.config[0:self.n]:
             return None
-        
+
         new_config = list(self.config)
-        
+
         new_config[self.blank_index] = new_config[self.blank_index - self.n]
         new_config[self.blank_index - self.n] = 0
         self.blank_index = self.config.index(0)
 
         return PuzzleState(new_config, self.n, self, "Up", self.cost + 1)
 
-      
+
     def move_down(self):
         """
         Moves the blank tile one row down.
@@ -66,15 +66,15 @@ class PuzzleState(object):
         """
         if 0 in self.config[-self.n:]:
             return None
-        
+
         new_config = list(self.config)
-        
+
         new_config[self.blank_index] = new_config[self.blank_index + self.n]
         new_config[self.blank_index + self.n] = 0
         self.blank_index = self.config.index(0)
 
         return PuzzleState(new_config, self.n, self, "Down", self.cost + 1)
-      
+
     def move_left(self):
         """
         Moves the blank tile one column to the left.
@@ -82,9 +82,9 @@ class PuzzleState(object):
         """
         if self.blank_index % self.n == 0:
             return None
-        
+
         new_config = list(self.config)
-        
+
         new_config[self.blank_index] = new_config[self.blank_index - 1]
         new_config[self.blank_index - 1] = 0
         self.blank_index = self.config.index(0)
@@ -98,22 +98,22 @@ class PuzzleState(object):
         """
         if self.blank_index % self.n == self.n - 1:
             return None
-        
+
         new_config = list(self.config)
-        
+
         new_config[self.blank_index] = new_config[self.blank_index + 1]
         new_config[self.blank_index + 1] = 0
         self.blank_index = self.config.index(0)
 
         return PuzzleState(new_config, self.n, self, "Right", self.cost + 1)
-      
+
     def expand(self):
         """ Generate the child nodes of this node """
-        
+
         # Node has already been expanded
         if len(self.children) != 0:
             return self.children
-        
+
         # Add child nodes in order of UDLR
         children = [
             self.move_up(),
@@ -130,7 +130,7 @@ class PuzzleState(object):
 ### Students need to change the method to have the corresponding parameters
 def writeOutput(state, numNodesExpanded, searchDepth, maxSearchDepth, runningTime, maxRamUsage):
     ### Student Code Goes here
-    
+
     path = []
     getPathNode = state
     while state.parent is not None:
@@ -158,18 +158,35 @@ def bfs_search(initial_state):
 
         if test_goal(state):
             return state, numNodesExpanded, searchDepth, maxSearchDepth, runningTime, maxRamUsage
-        
+
         for neighbor in state.expand():
             if neighbor.config not in [node.config for node in frontier] and \
                neighbor.config not in [node.config for node in explored]:
                 frontier.append(neighbor)
-    
+
     return False
 
 def dfs_search(initial_state):
     """DFS search"""
     ### STUDENT CODE GOES HERE ###
-    pass
+    frontier = list()
+    frontier.append(initial_state)
+
+    explored = set()
+
+    while len(frontier) != 0:
+        state = frontier.pop(0)
+        explored.add(state)
+
+        if test_goal(state):
+            return state, numNodesExpanded, searchDepth, maxSearchDepth, runningTime, maxRamUsage
+
+        for neighbor in state.expand():
+            if neighbor.config not in [node.config for node in frontier] and \
+               neighbor.config not in [node.config for node in explored]:
+                frontier.append(neighbor)
+
+    return False
 
 def A_star_search(initial_state):
     """A * search"""
@@ -200,13 +217,13 @@ def main():
     board_size  = int(math.sqrt(len(begin_state)))
     hard_state  = PuzzleState(begin_state, board_size)
     start_time  = time.time()
-    
+
     if   search_mode == "bfs": bfs_search(hard_state)
     elif search_mode == "dfs": dfs_search(hard_state)
     elif search_mode == "ast": A_star_search(hard_state)
-    else: 
+    else:
         print("Enter valid command arguments !")
-        
+
     end_time = time.time()
     print("Program completed in %.3f second(s)"%(end_time-start_time))
 
