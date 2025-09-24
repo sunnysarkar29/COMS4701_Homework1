@@ -202,6 +202,8 @@ def calculate_manhattan_dist(idx, value, n):
     """calculate the manhattan distance of a tile"""
     ### STUDENT CODE GOES HERE ###
     distanceConfig = abs(idx - value)
+
+    # Move up/down is of size n (divide), move left/right is of size 1 (remainder)
     return int(distanceConfig / n) + (distanceConfig % n)
 
 def test_goal(puzzle_state):
