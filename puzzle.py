@@ -175,11 +175,11 @@ def dfs_search(initial_state):
     explored = set()
 
     while len(frontier) != 0:
-        state = frontier.pop(0)
+        state = frontier.pop()
         explored.add(state)
 
         if test_goal(state):
-            return state, numNodesExpanded, searchDepth, maxSearchDepth, runningTime, maxRamUsage
+            return state
 
         for neighbor in state.expand():
             if neighbor.config not in [node.config for node in frontier] and \
