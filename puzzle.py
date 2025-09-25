@@ -1,10 +1,10 @@
 from __future__ import division
-from __future__ import print_function
+# from __future__ import print_function
 
 import sys
 import math
 import time
-import queue as Q
+import queue
 
 
 #### SKELETON CODE ####
@@ -48,6 +48,7 @@ class PuzzleState(object):
         :return a PuzzleState with the new configuration
         """
         if 0 in self.config[0:self.n]:
+            # print('Up Return: None')
             return None
 
         new_config = list(self.config)
@@ -55,6 +56,8 @@ class PuzzleState(object):
         new_config[self.blank_index] = new_config[self.blank_index - self.n]
         new_config[self.blank_index - self.n] = 0
         self.blank_index = self.config.index(0)
+
+        # print('Up Return: ' + str(new_config))
 
         return PuzzleState(new_config, self.n, self, "Up", self.cost + 1)
 
@@ -65,6 +68,7 @@ class PuzzleState(object):
         :return a PuzzleState with the new configuration
         """
         if 0 in self.config[-self.n:]:
+            # print('Down Return: None')
             return None
 
         new_config = list(self.config)
@@ -73,6 +77,7 @@ class PuzzleState(object):
         new_config[self.blank_index + self.n] = 0
         self.blank_index = self.config.index(0)
 
+        # print('Down Return: ' + str(new_config))
         return PuzzleState(new_config, self.n, self, "Down", self.cost + 1)
 
     def move_left(self):
@@ -81,6 +86,7 @@ class PuzzleState(object):
         :return a PuzzleState with the new configuration
         """
         if self.blank_index % self.n == 0:
+            # print('Left Return: None')
             return None
 
         new_config = list(self.config)
@@ -89,6 +95,7 @@ class PuzzleState(object):
         new_config[self.blank_index - 1] = 0
         self.blank_index = self.config.index(0)
 
+        # print('Left Return: ' + str(new_config))
         return PuzzleState(new_config, self.n, self, "Left", self.cost + 1)
 
     def move_right(self):
@@ -97,6 +104,7 @@ class PuzzleState(object):
         :return a PuzzleState with the new configuration
         """
         if self.blank_index % self.n == self.n - 1:
+            # print('Right Return: None')
             return None
 
         new_config = list(self.config)
@@ -105,6 +113,7 @@ class PuzzleState(object):
         new_config[self.blank_index + 1] = 0
         self.blank_index = self.config.index(0)
 
+        # print('Right Return: ' + str(new_config))
         return PuzzleState(new_config, self.n, self, "Right", self.cost + 1)
 
     def expand(self):
@@ -147,45 +156,66 @@ def writeOutput(state, numNodesExpanded, searchDepth, maxSearchDepth, runningTim
 def bfs_search(initial_state):
     """BFS search"""
     ### STUDENT CODE GOES HERE ###
-    frontier = list()
-    frontier.append(initial_state)
+    expanded = 0
+    frontier = queue.Queue()
+    frontierSet = set()
+    frontier.put(initial_state)
+    frontierSet.add(tuple(initial_state.config))
 
     explored = set()
 
-    while len(frontier) != 0:
-        state = frontier.pop(0)
-        explored.add(state)
+    while len(frontierSet) != 0:
+        state = frontier.get()
+        frontierSet.remove(tuple(state.config))
+        explored.add(tuple(state.config))
+        expanded += 1
 
         if test_goal(state):
-            return state, numNodesExpanded, searchDepth, maxSearchDepth, runningTime, maxRamUsage
+            return state
+            # return state, numNodesExpanded, searchDepth, maxSearchDepth, runningTime, maxRamUsage
 
         for neighbor in state.expand():
-            if neighbor.config not in [node.config for node in frontier] and \
-               neighbor.config not in [node.config for node in explored]:
-                frontier.append(neighbor)
+            if tuple(neighbor.config) not in frontierSet and \
+               tuple(neighbor.config) not in explored:
+                frontier.put(neighbor)
+                frontierSet.add(tuple(neighbor.config))
+
+        print(expanded)
 
     return False
 
 def dfs_search(initial_state):
     """DFS search"""
     ### STUDENT CODE GOES HERE ###
+    expanded = 0
     frontier = list()
+    frontierSet = set()
     frontier.append(initial_state)
+    frontierSet.add(tuple(initial_state.config))
 
     explored = set()
 
-    while len(frontier) != 0:
+    while len(frontierSet) != 0:
         state = frontier.pop()
-        explored.add(state)
+        frontierSet.remove(tuple(state.config))
+        explored.add(tuple(state.config))
+        # print('\n\n\nState: ' + str(state.config) + '\n')
+        # print(str(state.action))
 
         if test_goal(state):
             return state
 
-        for neighbor in state.expand():
-            if neighbor.config not in [node.config for node in frontier] and \
-               neighbor.config not in [node.config for node in explored]:
+        neighbors = state.expand()[::-1]
+        expanded += 1
+        for neighbor in neighbors:
+            # print(neighbor.config)
+            if tuple(neighbor.config) not in frontierSet and \
+               tuple(neighbor.config) not in explored:
                 frontier.append(neighbor)
+                frontierSet.add(tuple(neighbor.config))
 
+        print(expanded)
+        # import pdb; pdb.set_trace()
     return False
 
 def A_star_search(initial_state):
@@ -209,6 +239,7 @@ def calculate_manhattan_dist(idx, value, n):
 def test_goal(puzzle_state):
     """test the state is the goal state or not"""
     ### STUDENT CODE GOES HERE ###
+    print(puzzle_state.config)
     goalState = [0,1,2,3,4,5,6,7,8]
     return puzzle_state.config == goalState
 
