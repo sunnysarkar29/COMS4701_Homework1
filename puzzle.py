@@ -1,4 +1,6 @@
 from __future__ import division
+import resource
+import heapq
 # from __future__ import print_function
 
 import sys
@@ -225,8 +227,13 @@ def A_star_search(initial_state):
 
 def calculate_total_cost(state):
     """calculate the total estimated cost of a state"""
-    ### STUDENT CODE GOES HERE ###
-    pass
+    g_of_n = state.cost
+
+    f_of_n = 0
+    for idx, value in enumerate(state.config):
+        f_of_n += calculate_manhattan_dist(idx, value, state.n)
+
+    return g_of_n + f_of_n
 
 def calculate_manhattan_dist(idx, value, n):
     """calculate the manhattan distance of a tile"""
@@ -260,6 +267,7 @@ def main():
 
     end_time = time.time()
     print("Program completed in %.3f second(s)"%(end_time-start_time))
+
 
 if __name__ == '__main__':
     main()
