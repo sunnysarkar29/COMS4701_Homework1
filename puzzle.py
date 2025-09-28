@@ -220,10 +220,48 @@ def dfs_search(initial_state):
         # import pdb; pdb.set_trace()
     return False
 
+# def updatePriority(pqueue, state, priority):
+#     """Update the priority of a state in the priority queue"""
+    
+#     for index, (p, c, s) in enumerate(pqueue):
+#         if s == state:
+#             if p <= priority:
+#                 return
+#             del pqueue[index]
+#             pqueue.append((priority, c, s))
+#             heapq.heapify(pqueue)
+#             return
+
+def addToPriorityQueue(priorityQueue, queueDict, explored, state):
+    """Add a state to the priority queue"""
+    if tuple(state.config) in explored:
+        return
+    
+    stateCost = calculate_total_cost(state)
+    if (tuple(state.config) in queueDict and stateCost < queueDict[tuple(state.config)]):
+        queueDict[tuple(state.config)] = stateCost
+
+    heapq.heappush(priorityQueue, (stateCost, state))
+    queueDict[tuple(state.config)] = stateCost
+
 def A_star_search(initial_state):
     """A * search"""
     ### STUDENT CODE GOES HERE ###
-    pass
+    frontier = []
+    frontierDict = {}
+    explored = set()
+
+    while len(frontierDict) != 0:
+        priority, state = heapq.heappop(frontier)
+
+        if tuple(state.config) not in explored:
+            if test_goal(state):
+                return state
+            
+            if not (tuple(state.config) in frontierDict and priority > frontierDict[tuple(state.config)]):
+                for neighbor in state.expand():
+                    addToPriorityQueue(frontier, frontierDict, explored, neighbor)
+
 
 def calculate_total_cost(state):
     """calculate the total estimated cost of a state"""
