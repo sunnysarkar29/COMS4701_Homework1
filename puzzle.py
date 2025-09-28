@@ -232,22 +232,46 @@ def dfs_search(initial_state):
 #             heapq.heapify(pqueue)
 #             return
 
-def addToPriorityQueue(priorityQueue, queueDict, explored, state):
+def getTieBreaker(action):
+    """Get a tie breaker value for a state"""
+    if action == "Up":
+        return 1
+    
+    elif action == "Down":
+        return 2
+    
+    elif action == "Left":
+        return 3
+    
+    elif action == "Right":
+        return 4
+
+    return 0
+
+def addToPriorityQueue(priorityQueue, queueDict, explored, state, counter):
     """Add a state to the priority queue"""    
     stateCost = calculate_total_cost(state)
 
-    if tuple(state.config) not in queueDict and tuple(state.config) not in explored:
+    print('\n\nEntering addToPriorityQueue')
+    print(state.config)
+    # import pdb; pdb.set_trace()
+
+    if tuple(state.config) not in queueDict or tuple(state.config) not in explored:
         # Have not visited config - Add to queue
-        heapq.heappush(priorityQueue, (stateCost, state))
+        print('AAAAAAAAAAAA')
+        print(stateCost)
+        heapq.heappush(priorityQueue, (stateCost, getTieBreaker(state.action), state.cost, counter, state))
         queueDict[tuple(state.config)] = stateCost
 
     elif stateCost < queueDict[tuple(state.config)]:
         # Visited config but found a cheaper path - Update priority
+        print('BBBBBBBBBBBB')
         queueDict[tuple(state.config)] = stateCost
-        heapq.heappush(priorityQueue, (stateCost, state))
+        heapq.heappush(priorityQueue, (stateCost, getTieBreaker(state.action), state.cost, counter, state))
 
     else:
         # Visited config and have not found a cheaper path - Do nothing
+        print('CCCCCCCCCCCC')
         pass
 
 def A_star_search(initial_state):
@@ -257,11 +281,15 @@ def A_star_search(initial_state):
     frontierDict = {}
     explored = set()
 
-    heapq.heappush(frontier, (calculate_total_cost(state), state))
+    finalTieBreakerCounter = 0
+
+    heapq.heappush(frontier, (calculate_total_cost(initial_state), 0, 0, finalTieBreakerCounter, initial_state))
     frontierDict[tuple(initial_state.config)] = calculate_total_cost(initial_state)
 
-    while len(frontierDict) != 0:
-        priority, state = heapq.heappop(frontier)
+
+    while len(frontier) != 0:
+        # import pdb; pdb.set_trace()
+        priority, _, _, _, state = heapq.heappop(frontier)
 
         if priority > frontierDict[tuple(state.config)]:
             # Outdated entry in priority queue - Skip
@@ -273,9 +301,10 @@ def A_star_search(initial_state):
             if test_goal(state):
                 return state
             
-            if tuple(state.config) not in frontierDict:
-                for neighbor in state.expand():
-                    addToPriorityQueue(frontier, frontierDict, explored, neighbor)
+            # if tuple(state.config) not in frontierDict:
+            for neighbor in state.expand():
+                finalTieBreakerCounter += 1
+                addToPriorityQueue(frontier, frontierDict, explored, neighbor, finalTieBreakerCounter)
 
 
 def calculate_total_cost(state):
