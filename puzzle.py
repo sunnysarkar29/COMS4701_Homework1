@@ -238,11 +238,20 @@ def addToPriorityQueue(priorityQueue, queueDict, explored, state):
         return
     
     stateCost = calculate_total_cost(state)
-    if (tuple(state.config) in queueDict and stateCost < queueDict[tuple(state.config)]):
+
+    if tuple(state.config) not in queueDict:
+        # Have not visited config - Add to queue
+        heapq.heappush(priorityQueue, (stateCost, state))
         queueDict[tuple(state.config)] = stateCost
 
-    heapq.heappush(priorityQueue, (stateCost, state))
-    queueDict[tuple(state.config)] = stateCost
+    elif stateCost < queueDict[tuple(state.config)]:
+        # Visited config but found a cheaper path - Update priority
+        queueDict[tuple(state.config)] = stateCost
+        heapq.heappush(priorityQueue, (stateCost, state))
+
+    else:
+        # Visited config and have not found a cheaper path - Do nothing
+        pass
 
 def A_star_search(initial_state):
     """A * search"""
@@ -251,14 +260,20 @@ def A_star_search(initial_state):
     frontierDict = {}
     explored = set()
 
+    heapq.heappush(frontier, (calculate_total_cost(state), state))
+    frontierDict[tuple(initial_state.config)] = calculate_total_cost(initial_state)
+
     while len(frontierDict) != 0:
         priority, state = heapq.heappop(frontier)
 
-        if tuple(state.config) not in explored:
-            if test_goal(state):
-                return state
+        if priority > frontierDict[tuple(state.config)]:
+            pass
+        else:
+            if tuple(state.config) not in explored:
+                if test_goal(state):
+                    return state
             
-            if not (tuple(state.config) in frontierDict and priority > frontierDict[tuple(state.config)]):
+            if tuple(state.config) not in frontierDict:
                 for neighbor in state.expand():
                     addToPriorityQueue(frontier, frontierDict, explored, neighbor)
 
