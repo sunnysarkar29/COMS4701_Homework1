@@ -130,21 +130,36 @@ class PuzzleState(object):
 # Function that Writes to output.txt
 
 ### Students need to change the method to have the corresponding parameters
-def writeOutput(state, numNodesExpanded, searchDepth, maxSearchDepth, runningTime, maxRamUsage):
+def writeOutput(state, numNodesExpanded, maxSearchDepth, runningTime, maxRamUsage):
     ### Student Code Goes here
 
+    cost = state.cost
     path = []
     getPathNode = state
-    while state.parent is not None:
-        path = [getPathNode.action] + path
-        getPathNode = getPathNode.parent
+    while True:
+        if state.action == "Initial":
+            break
+        path = [state.action] + path
+        state = state.parent
+
+    print('\n\n\nPrinting the following to output.txt:')
+    
+    print("path_to_goal: "     + str(path))
+    print("cost_of_path: "     + str(cost))
+    print("nodes_expanded: "   + str(numNodesExpanded))
+    print("search_depth: "     + str(cost))
+    print("max_search_depth: " + str(maxSearchDepth))
+    print("running_time: "     + str(runningTime))
+    print("max_ram_usage: "    + str(maxRamUsage))
 
     with open("output.txt", "w") as f:
-        f.write("path_to_goal: " + str(path) + "\n")
-        f.write("cost_of_path: " + str(state.cost) + "\n")
-        f.write("nodes_expanded: " + str(getPathNode.cost) + "\n")
-        f.write("search_depth: " + str(getPathNode.cost) + "\n")
-    pass
+        f.write("path_to_goal: "     + str(path)             + "\n")
+        f.write("cost_of_path: "     + str(cost)             + "\n")
+        f.write("nodes_expanded: "   + str(numNodesExpanded) + "\n")
+        f.write("search_depth: "     + str(cost)             + "\n")
+        f.write("max_search_depth: " + str(maxSearchDepth)   + "\n")
+        f.write("running_time: "     + str(runningTime)      + "\n")
+        f.write("max_ram_usage: "    + str(maxRamUsage)      + "\n")
 
 def bfs_search(initial_state):
     """BFS search"""
@@ -157,17 +172,23 @@ def bfs_search(initial_state):
 
     explored = set()
 
+    maxDepth = 0
+
     while len(frontierSet) != 0:
         state = frontier.get()
         frontierSet.remove(tuple(state.config))
         explored.add(tuple(state.config))
-        expanded += 1
 
         if test_goal(state):
-            return state
-            # return state, numNodesExpanded, searchDepth, maxSearchDepth, runningTime, maxRamUsage
+            return state, expanded, maxDepth
 
-        for neighbor in state.expand():
+        neighbors = state.expand()[::-1]
+        expanded += 1
+
+        if neighbors and neighbors[0].cost > maxDepth:
+            maxDepth = neighbors[0].cost
+
+        for neighbor in neighbors:
             if tuple(neighbor.config) not in frontierSet and \
                tuple(neighbor.config) not in explored:
                 frontier.put(neighbor)
@@ -186,16 +207,22 @@ def dfs_search(initial_state):
 
     explored = set()
 
+    maxDepth = 0
+
     while len(frontierSet) != 0:
         state = frontier.pop()
         frontierSet.remove(tuple(state.config))
         explored.add(tuple(state.config))
 
         if test_goal(state):
-            return state
+            return state, expanded, maxDepth
 
         neighbors = state.expand()[::-1]
         expanded += 1
+
+        if neighbors and neighbors[0].cost > maxDepth:
+            maxDepth = neighbors[0].cost
+
         for neighbor in neighbors:
             if tuple(neighbor.config) not in frontierSet and \
                tuple(neighbor.config) not in explored:
@@ -247,6 +274,9 @@ def A_star_search(initial_state):
 
     finalTieBreakerCounter = 0
 
+    expanded = 0
+    maxDepth = 0
+
     heapq.heappush(frontier, (calculate_total_cost(initial_state), 0, 0, finalTieBreakerCounter, initial_state))
     frontierDict[tuple(initial_state.config)] = calculate_total_cost(initial_state)
 
@@ -262,9 +292,15 @@ def A_star_search(initial_state):
                 explored.add(tuple(state.config))
 
             if test_goal(state):
-                return state
-            
-            for neighbor in state.expand():
+                return state, expanded, maxDepth
+
+            neighbors = state.expand()[::-1]
+            expanded += 1
+
+            if neighbors and neighbors[0].cost > maxDepth:
+                maxDepth = neighbors[0].cost
+
+            for neighbor in neighbors:
                 finalTieBreakerCounter += 1
                 addToPriorityQueue(frontier, frontierDict, explored, neighbor, finalTieBreakerCounter)
 
@@ -290,7 +326,6 @@ def calculate_manhattan_dist(idx, value, n):
 def test_goal(puzzle_state):
     """test the state is the goal state or not"""
     ### STUDENT CODE GOES HERE ###
-    print(puzzle_state.config)
     goalState = [0,1,2,3,4,5,6,7,8]
     return puzzle_state.config == goalState
 
@@ -303,13 +338,23 @@ def main():
     hard_state  = PuzzleState(begin_state, board_size)
     start_time  = time.time()
 
-    if   search_mode == "bfs": bfs_search(hard_state)
-    elif search_mode == "dfs": dfs_search(hard_state)
-    elif search_mode == "ast": A_star_search(hard_state)
+    startRam = float(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    if   search_mode == "bfs":
+        finalState, expanded, maxDepth = bfs_search(hard_state)
+    elif search_mode == "dfs":
+        finalState, expanded, maxDepth = dfs_search(hard_state)
+    elif search_mode == "ast":
+        finalState, expanded, maxDepth = A_star_search(hard_state)
     else:
+        finalState = None
         print("Enter valid command arguments !")
 
+    endRam = float(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
     end_time = time.time()
+
+    if finalState is not None:
+        writeOutput(finalState, expanded, maxDepth, end_time - start_time, (endRam - startRam) / (2.0**20.0))
+
     print("Program completed in %.3f second(s)"%(end_time-start_time))
 
 
