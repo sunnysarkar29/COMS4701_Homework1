@@ -142,16 +142,6 @@ def writeOutput(state, numNodesExpanded, maxSearchDepth, runningTime, maxRamUsag
         path = [state.action] + path
         state = state.parent
 
-    print('\n\n\nPrinting the following to output.txt:')
-    
-    print("path_to_goal: "     + str(path))
-    print("cost_of_path: "     + str(cost))
-    print("nodes_expanded: "   + str(numNodesExpanded))
-    print("search_depth: "     + str(cost))
-    print("max_search_depth: " + str(maxSearchDepth))
-    print("running_time: "     + str(runningTime))
-    print("max_ram_usage: "    + str(maxRamUsage))
-
     with open("output.txt", "w") as f:
         f.write("path_to_goal: "     + str(path)             + "\n")
         f.write("cost_of_path: "     + str(cost)             + "\n")
@@ -175,22 +165,11 @@ def bfs_search(initial_state):
     maxDepth = 0
 
     while len(frontierSet) != 0:
-
-        print("\n\n\n===============================")
-        print("Frontier Size: ", len(frontierSet))
-        print("===============================")
-        print("Number of Nodes Expanded So Far: ", expanded)
-        print("Max Depth So Far: ", maxDepth)
-        print("Explored Size: ", len(explored))
-
         state = frontier.get()
-        print("Exploring State: ", state.config)
-        print("  - Action: ", state.action)
         frontierSet.remove(tuple(state.config))
         explored.add(tuple(state.config))
 
         if test_goal(state):
-            print("Goal State Found!")
             return state, expanded, maxDepth
 
         neighbors = state.expand()
@@ -199,8 +178,6 @@ def bfs_search(initial_state):
         for neighbor in neighbors:
             if tuple(neighbor.config) not in frontierSet and \
                tuple(neighbor.config) not in explored:
-                print("  - Adding to Frontier: ", neighbor.config)
-                print("    - Action: ", neighbor.action)
 
                 if neighbor.cost > maxDepth:
                     maxDepth = neighbor.cost
@@ -223,21 +200,11 @@ def dfs_search(initial_state):
     maxDepth = 0
 
     while len(frontierSet) != 0:
-
-        print("\n\n\n===============================")
-        print("Frontier Size: ", len(frontierSet))
-        print("===============================")
-        print("Number of Nodes Expanded So Far: ", expanded)
-        print("Max Depth So Far: ", maxDepth)
-        print("Explored Size: ", len(explored))
         state = frontier.pop()
-        print("Exploring State: ", state.config)
-        print("  - Action: ", state.action)
         frontierSet.remove(tuple(state.config))
         explored.add(tuple(state.config))
 
         if test_goal(state):
-            print("Goal State Found!")
             return state, expanded, maxDepth
 
         neighbors = state.expand()[::-1]
@@ -248,8 +215,6 @@ def dfs_search(initial_state):
                tuple(neighbor.config) not in explored:
                 if neighbor.cost > maxDepth:
                     maxDepth = neighbor.cost
-                print("  - Adding to Frontier: ", neighbor.config)
-                print("    - Action: ", neighbor.action)
                 frontier.append(neighbor)
                 frontierSet.add(tuple(neighbor.config))
 
@@ -291,7 +256,7 @@ def addToPriorityQueue(priorityQueue, queueDict, explored, state, counter):
         # Visited config and have not found a cheaper path - Do nothing
         depth = None
         pass
-    
+
     return depth
 
 def A_star_search(initial_state):
