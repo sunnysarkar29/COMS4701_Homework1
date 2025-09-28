@@ -185,6 +185,7 @@ def bfs_search(initial_state):
 
         state = frontier.get()
         print("Exploring State: ", state.config)
+        print("  - Action: ", state.action)
         frontierSet.remove(tuple(state.config))
         explored.add(tuple(state.config))
 
@@ -192,17 +193,17 @@ def bfs_search(initial_state):
             print("Goal State Found!")
             return state, expanded, maxDepth
 
-        neighbors = state.expand()[::-1]
+        neighbors = state.expand()
         expanded += 1
-
-        if neighbors and neighbors[0].cost > maxDepth:
-            maxDepth = neighbors[0].cost
 
         for neighbor in neighbors:
             if tuple(neighbor.config) not in frontierSet and \
                tuple(neighbor.config) not in explored:
                 print("  - Adding to Frontier: ", neighbor.config)
                 print("    - Action: ", neighbor.action)
+
+                if neighbor.cost > maxDepth:
+                    maxDepth = neighbor.cost
                 frontier.put(neighbor)
                 frontierSet.add(tuple(neighbor.config))
 
@@ -222,22 +223,33 @@ def dfs_search(initial_state):
     maxDepth = 0
 
     while len(frontierSet) != 0:
+
+        print("\n\n\n===============================")
+        print("Frontier Size: ", len(frontierSet))
+        print("===============================")
+        print("Number of Nodes Expanded So Far: ", expanded)
+        print("Max Depth So Far: ", maxDepth)
+        print("Explored Size: ", len(explored))
         state = frontier.pop()
+        print("Exploring State: ", state.config)
+        print("  - Action: ", state.action)
         frontierSet.remove(tuple(state.config))
         explored.add(tuple(state.config))
 
         if test_goal(state):
+            print("Goal State Found!")
             return state, expanded, maxDepth
 
         neighbors = state.expand()[::-1]
         expanded += 1
 
-        if neighbors and neighbors[0].cost > maxDepth:
-            maxDepth = neighbors[0].cost
-
         for neighbor in neighbors:
             if tuple(neighbor.config) not in frontierSet and \
                tuple(neighbor.config) not in explored:
+                if neighbor.cost > maxDepth:
+                    maxDepth = neighbor.cost
+                print("  - Adding to Frontier: ", neighbor.config)
+                print("    - Action: ", neighbor.action)
                 frontier.append(neighbor)
                 frontierSet.add(tuple(neighbor.config))
 
