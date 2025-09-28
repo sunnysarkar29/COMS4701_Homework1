@@ -184,7 +184,7 @@ def bfs_search(initial_state):
                 frontier.put(neighbor)
                 frontierSet.add(tuple(neighbor.config))
 
-    return False
+    return None, expanded, maxDepth
 
 def dfs_search(initial_state):
     """DFS search"""
@@ -218,7 +218,7 @@ def dfs_search(initial_state):
                 frontier.append(neighbor)
                 frontierSet.add(tuple(neighbor.config))
 
-    return False
+    return None, expanded, maxDepth
 
 def getTieBreaker(action):
     """Get a tie breaker value for a state"""
@@ -298,6 +298,7 @@ def A_star_search(initial_state):
                 if neighborDepth is not None and neighborDepth > maxDepth:
                     maxDepth = neighborDepth
 
+    return None, expanded, maxDepth
 
 def calculate_total_cost(state):
     """calculate the total estimated cost of a state"""
