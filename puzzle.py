@@ -175,11 +175,21 @@ def bfs_search(initial_state):
     maxDepth = 0
 
     while len(frontierSet) != 0:
+
+        print("\n\n\n===============================")
+        print("Frontier Size: ", len(frontierSet))
+        print("===============================")
+        print("Number of Nodes Expanded So Far: ", expanded)
+        print("Max Depth So Far: ", maxDepth)
+        print("Explored Size: ", len(explored))
+
         state = frontier.get()
+        print("Exploring State: ", state.config)
         frontierSet.remove(tuple(state.config))
         explored.add(tuple(state.config))
 
         if test_goal(state):
+            print("Goal State Found!")
             return state, expanded, maxDepth
 
         neighbors = state.expand()[::-1]
@@ -191,6 +201,8 @@ def bfs_search(initial_state):
         for neighbor in neighbors:
             if tuple(neighbor.config) not in frontierSet and \
                tuple(neighbor.config) not in explored:
+                print("  - Adding to Frontier: ", neighbor.config)
+                print("    - Action: ", neighbor.action)
                 frontier.put(neighbor)
                 frontierSet.add(tuple(neighbor.config))
 
