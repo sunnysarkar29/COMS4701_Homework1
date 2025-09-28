@@ -233,13 +233,10 @@ def dfs_search(initial_state):
 #             return
 
 def addToPriorityQueue(priorityQueue, queueDict, explored, state):
-    """Add a state to the priority queue"""
-    if tuple(state.config) in explored:
-        return
-    
+    """Add a state to the priority queue"""    
     stateCost = calculate_total_cost(state)
 
-    if tuple(state.config) not in queueDict:
+    if tuple(state.config) not in queueDict and tuple(state.config) not in explored:
         # Have not visited config - Add to queue
         heapq.heappush(priorityQueue, (stateCost, state))
         queueDict[tuple(state.config)] = stateCost
@@ -267,11 +264,14 @@ def A_star_search(initial_state):
         priority, state = heapq.heappop(frontier)
 
         if priority > frontierDict[tuple(state.config)]:
+            # Outdated entry in priority queue - Skip
             pass
         else:
             if tuple(state.config) not in explored:
-                if test_goal(state):
-                    return state
+                explored.add(tuple(state.config))
+
+            if test_goal(state):
+                return state
             
             if tuple(state.config) not in frontierDict:
                 for neighbor in state.expand():
