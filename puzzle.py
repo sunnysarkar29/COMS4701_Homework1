@@ -279,15 +279,20 @@ def addToPriorityQueue(priorityQueue, queueDict, explored, state, counter):
         # Have not visited config - Add to queue
         heapq.heappush(priorityQueue, (stateCost, getTieBreaker(state.action), state.cost, counter, state))
         queueDict[tuple(state.config)] = stateCost
+        depth = state.cost
 
     elif stateCost < queueDict[tuple(state.config)]:
         # Visited config but found a cheaper path - Update priority
         queueDict[tuple(state.config)] = stateCost
         heapq.heappush(priorityQueue, (stateCost, getTieBreaker(state.action), state.cost, counter, state))
+        depth = state.cost
 
     else:
         # Visited config and have not found a cheaper path - Do nothing
+        depth = None
         pass
+    
+    return depth
 
 def A_star_search(initial_state):
     """A * search"""
@@ -318,15 +323,15 @@ def A_star_search(initial_state):
             if test_goal(state):
                 return state, expanded, maxDepth
 
-            neighbors = state.expand()[::-1]
+            neighbors = state.expand()
             expanded += 1
-
-            if neighbors and neighbors[0].cost > maxDepth:
-                maxDepth = neighbors[0].cost
 
             for neighbor in neighbors:
                 finalTieBreakerCounter += 1
-                addToPriorityQueue(frontier, frontierDict, explored, neighbor, finalTieBreakerCounter)
+                neighborDepth = addToPriorityQueue(frontier, frontierDict, explored, neighbor, finalTieBreakerCounter)
+
+                if neighborDepth is not None and neighborDepth > maxDepth:
+                    maxDepth = neighborDepth
 
 
 def calculate_total_cost(state):
